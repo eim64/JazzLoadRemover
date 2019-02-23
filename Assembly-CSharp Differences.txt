@@ -1,0 +1,1130 @@
+Added Types:
+	public enum SplitterEvent{
+		Kidney_Pickup = 1,
+		Last_Golf_Hole,
+		Gravy_Race_Finish = 4,
+		Pill_Swallow = 8
+	}
+	
+	public static class LoadRemover
+	{
+		public static void SetLoading(bool value)
+		{
+			Marshal.WriteByte(LoadRemover.ptr, value ? 1 : 0);
+		}
+
+		static LoadRemover()
+		{
+			File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low\\Necrophone Games\\LoadPtr", LoadRemover.ptr.ToString() + "\n" + Process.GetCurrentProcess().Id);
+		}
+
+		public static SplitterEvent SplitState
+		{
+			set
+			{
+				Marshal.WriteInt32(LoadRemover.ptr, 5, (int)value);
+			}
+		}
+
+		public static int SplitStateInt
+		{
+			set
+			{
+				Marshal.WriteInt32(LoadRemover.ptr, 5, value);
+			}
+		}
+
+		public static int Level
+		{
+			set
+			{
+				Marshal.WriteInt32(LoadRemover.ptr, 1, value);
+			}
+		}
+
+		public static IntPtr ptr = Marshal.AllocHGlobal(9);
+	}
+	
+Edited Methods:
+	CakeLaptop:
+		Launch:
+			Before
+			{
+				if (!this._usedBln)
+				{
+					this._usedBln = true;
+					if (Application.loadedLevelName != "WeddingQuake")
+					{
+						JazzTool.GetPlayerCamObj().transform.parent = null;
+						JazzTool.GetPlayer().transform.position = base.transform.Find("standPos").position;
+						ConsoleModes.SaveGame("WeddingLaunch");
+						Application.LoadLevel("WeddingQuake");
+						return;
+					}
+					MonoBehaviour.print("Return to previous level");
+					ConsoleModes.LoadGame("WeddingLaunch");
+				}
+			}
+			
+			After
+			{
+				if (!this._usedBln)
+				{
+					this._usedBln = true;
+					if (Application.loadedLevelName != "WeddingQuake")
+					{
+						JazzTool.GetPlayerCamObj().transform.parent = null;
+						JazzTool.GetPlayer().transform.position = base.transform.Find("standPos").position;
+						LoadRemover.SetLoading(true);
+						ConsoleModes.SaveGame("WeddingLaunch");
+						Application.LoadLevel("WeddingQuake");
+						return;
+					}
+					MonoBehaviour.print("Return to previous level");
+					ConsoleModes.LoadGame("WeddingLaunch");
+				}
+			}
+	
+	CarActivator:
+		ConcealComplete:
+			Before
+			{
+				OnScreenLog.Add("Save CarTiki");
+				ConsoleModes.SaveGame("CarTiki");
+				Application.LoadLevel("beatUpCar");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				OnScreenLog.Add("Save CarTiki");
+				ConsoleModes.SaveGame("CarTiki");
+				Application.LoadLevel("beatUpCar");
+			}
+			
+	ConsoleModes:
+		KonamiCodeDetected:
+			Before
+			{
+				if (Application.loadedLevelName != "WeddingQuake")
+				{
+					ConsoleModes.SaveGame("WeddingLaunch");
+					this.LoadWeddingQuake();
+					return;
+				}
+				ConsoleModes.LoadGame("WeddingLaunch");
+			}
+			
+			After
+			{
+				if (Application.loadedLevelName != "WeddingQuake")
+				{
+					LoadRemover.SetLoading(true);
+					ConsoleModes.SaveGame("WeddingLaunch");
+					this.LoadWeddingQuake();
+					return;
+				}
+				ConsoleModes.LoadGame("WeddingLaunch");
+			}
+			
+		LoadCarFighter:
+			Before
+			{
+				Application.LoadLevel("beatUpCar");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				Application.LoadLevel("beatUpCar");
+			}
+			
+		SaveGame:
+			Before
+			{
+				string text = DateTime.Now.ToString("MM-dd-YY HH-mm-ss");
+				if (fileStr.IndexOf(".txt") == -1)
+				{
+					fileStr += ".txt";
+				}
+				string loadFileStr = LoadMenu._loadFileStr;
+				LoadMenu._loadFileStr = fileStr;
+				MonoBehaviour.print("ConsoleModes.SaveGame :" + text + " :" + fileStr);
+				PSSaveLoad.Save(Application.loadedLevelName, "savedLevelStr");
+				PSSaveLoad.Save(text, "gameTimestamp");
+				NecroTool.BroadcastAll("Save");
+				LoadMenu._loadFileStr = loadFileStr;
+			}
+			
+			After
+			{
+				string text = DateTime.Now.ToString("MM-dd-YY HH-mm-ss");
+				if (fileStr.IndexOf(".txt") == -1)
+				{
+					fileStr += ".txt";
+				}
+				LoadRemover.SetLoading(true);
+				string loadFileStr = LoadMenu._loadFileStr;
+				LoadMenu._loadFileStr = fileStr;
+				MonoBehaviour.print("ConsoleModes.SaveGame :" + text + " :" + fileStr);
+				PSSaveLoad.Save(Application.loadedLevelName, "savedLevelStr");
+				PSSaveLoad.Save(text, "gameTimestamp");
+				NecroTool.BroadcastAll("Save");
+				LoadMenu._loadFileStr = loadFileStr;
+				LoadRemover.SetLoading(false);
+			}
+			
+	EndMissionoyl:
+		MissionItem_UseItem:
+			Before
+			{
+				base.audio.Play();
+				this.StartCountdown();
+			}
+			
+			After
+			{
+				LoadRemover.SplitState = (SplitterEvent)1024;
+				base.audio.Play();
+				this.StartCountdown();
+			}
+			
+	ExitWetwork:
+		NextLevel:
+			Before
+			{
+				Application.LoadLevel("subway_Part_Quatre");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				Application.LoadLevel("subway_Part_Quatre");
+			}
+			
+	GatorMouth:
+		InMouth:
+			Before
+			{
+				Application.LoadLevel("Director_Intestines_01");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				Application.LoadLevel("Director_Intestines_01");
+			}
+			
+	GolfHole:
+		OnTriggerEnter:
+			Before
+			{
+				if (col.name.IndexOf("golfBall") > -1 && !this._scoredBln)
+				{
+					col.gameObject.rigidbody.isKinematic = true;
+					this._scoredBln = true;
+					NecroSoundManager.PlaySnd("sfx/pad/golfScore");
+					if (base.gameObject.name != "Hole3")
+					{
+						NecroSoundManager.PlayDelayedSnd("sfx/pad/scoreApplause", 1f, 0.5f);
+					}
+					else
+					{
+						GameObject item = JazzTool.GetItem("golfClubItem");
+						if (item != null)
+						{
+							item.SendMessage("DoneUsing", SendMessageOptions.DontRequireReceiver);
+						}
+					}
+					base.transform.parent.SendMessage("GotHole", SendMessageOptions.DontRequireReceiver);
+					Transform transform = col.gameObject.transform.Find("poi");
+					if (transform != null)
+					{
+						transform.gameObject.SendMessage("SetActive", false, SendMessageOptions.DontRequireReceiver);
+						UnityEngine.Object.Destroy(transform.gameObject);
+					}
+				}
+			}
+			
+			After
+			{
+				if (col.name.IndexOf("golfBall") > -1 && !this._scoredBln)
+				{
+					col.gameObject.rigidbody.isKinematic = true;
+					this._scoredBln = true;
+					NecroSoundManager.PlaySnd("sfx/pad/golfScore");
+					if (base.gameObject.name != "Hole3")
+					{
+						NecroSoundManager.PlayDelayedSnd("sfx/pad/scoreApplause", 1f, 0.5f);
+					}
+					else
+					{
+						LoadRemover.SplitState = (SplitterEvent)128;
+						GameObject item = JazzTool.GetItem("golfClubItem");
+						if (item != null)
+						{
+							item.SendMessage("DoneUsing", SendMessageOptions.DontRequireReceiver);
+						}
+					}
+					base.transform.parent.SendMessage("GotHole", SendMessageOptions.DontRequireReceiver);
+					Transform transform = col.gameObject.transform.Find("poi");
+					if (transform != null)
+					{
+						transform.gameObject.SendMessage("SetActive", false, SendMessageOptions.DontRequireReceiver);
+						UnityEngine.Object.Destroy(transform.gameObject);
+					}
+				}
+			}
+			
+	Gong:
+		LoadLevel:
+			Before
+			{
+				Application.LoadLevel(this._levelStr);
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				Application.LoadLevel(this._levelStr);
+			}
+			
+	IntroLogic:
+		StartGame:
+			Before
+			{
+				MonoBehaviour.print("IntroLogic.StartGame");
+				LoadingDisplay.Show();
+				IntroLogic.CleanUpAirportIntro();
+				Time.timeScale = 1f;
+				Application.LoadLevel("Subway_Station_D_01");
+				AudioListener.volume = 1f;
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				MonoBehaviour.print("IntroLogic.StartGame");
+				LoadingDisplay.Show();
+				IntroLogic.CleanUpAirportIntro();
+				Time.timeScale = 1f;
+				Application.LoadLevel("Subway_Station_D_01");
+				AudioListener.volume = 1f;
+			}
+			
+	KidneyItem:
+		PickedUp:
+			Before
+			{
+				MonoBehaviour.print("PickedUp" + Time.time);
+				this._introDelayBln = true;
+				base.Invoke("IntroDelayComplete", 0.2f);
+				WQCharacterSelect.UnlockCharacter("cowboy");
+				if (!LoadMenu.CheckJustRestored())
+				{
+					NecroSoundManager.PlaySnd("sfx/missionDidGood");
+				}
+				GameObject.Find("/People/person_cowboy_static_01/static").audio.volume = 0.25f;
+				GameObject.Find("/Text/acquired").renderer.enabled = true;
+				if (this._dishwasherObj != null)
+				{
+					this._dishwasherObj.SendMessage("ResetFirstTurn", SendMessageOptions.DontRequireReceiver);
+				}
+				base.transform.Find("kidneyPOI").gameObject.SendMessage("SetActive", false);
+				GameObject gameObject = GameObject.Find("/Triggers/EndLevelTrig");
+				if (gameObject != null)
+				{
+					gameObject.SendMessage("ConditionMet");
+				}
+				GameObject.Find("/People/restaurant/person_geisha_03").SendMessage("ResetFirstTurn");
+				if (!this._testBln)
+				{
+					GameObject gameObject2 = GameObject.Find("/People/whizzer");
+					gameObject2.SendMessage("RemoveVector");
+					UnityEngine.Object.Destroy(gameObject2);
+					GameObject gameObject3 = GameObject.Find("/People/whizzer2Pos");
+					UnityEngine.Object.Instantiate(this._whiz2Obj, gameObject3.transform.position, gameObject3.transform.rotation);
+				}
+				this.RearrangeTrenchcoats();
+				GameObject gameObject4 = GameObject.Find("/endMissionArrow");
+				if (gameObject4)
+				{
+					gameObject4.renderer.enabled = true;
+				}
+				if ((float)Screen.width / (float)Screen.height <= 1.5f)
+				{
+					MonoBehaviour.print("accomodate 4:3");
+					this._mountTrans.Translate(0.12f, 0f, 0f);
+					base.transform.localPosition = this._mountTrans.localPosition;
+				}
+				JazzTool.GetCarryCamObj().camera.enabled = true;
+				base.gameObject.layer = 9;
+				UnityEngine.Object.Destroy(GameObject.Find("/Text/missiontext"));
+				GameObject gameObject5 = GameObject.Find("/Text/returnText");
+				gameObject5.SendMessage("SetCollidable", SendMessageOptions.DontRequireReceiver);
+				gameObject5.renderer.enabled = true;
+				UnityEngine.Object.Destroy(base.collider);
+				this.SwitchMusic();
+			}
+			
+			After
+			{
+				LoadRemover.SplitState = SplitterEvent.Gravy_Race_Finish;
+				MonoBehaviour.print("PickedUp" + Time.time);
+				this._introDelayBln = true;
+				base.Invoke("IntroDelayComplete", 0.2f);
+				WQCharacterSelect.UnlockCharacter("cowboy");
+				if (!LoadMenu.CheckJustRestored())
+				{
+					NecroSoundManager.PlaySnd("sfx/missionDidGood");
+				}
+				GameObject.Find("/People/person_cowboy_static_01/static").audio.volume = 0.25f;
+				GameObject.Find("/Text/acquired").renderer.enabled = true;
+				if (this._dishwasherObj != null)
+				{
+					this._dishwasherObj.SendMessage("ResetFirstTurn", SendMessageOptions.DontRequireReceiver);
+				}
+				base.transform.Find("kidneyPOI").gameObject.SendMessage("SetActive", false);
+				GameObject gameObject = GameObject.Find("/Triggers/EndLevelTrig");
+				if (gameObject != null)
+				{
+					gameObject.SendMessage("ConditionMet");
+				}
+				GameObject.Find("/People/restaurant/person_geisha_03").SendMessage("ResetFirstTurn");
+				if (!this._testBln)
+				{
+					GameObject gameObject2 = GameObject.Find("/People/whizzer");
+					gameObject2.SendMessage("RemoveVector");
+					UnityEngine.Object.Destroy(gameObject2);
+					GameObject gameObject3 = GameObject.Find("/People/whizzer2Pos");
+					UnityEngine.Object.Instantiate(this._whiz2Obj, gameObject3.transform.position, gameObject3.transform.rotation);
+				}
+				this.RearrangeTrenchcoats();
+				GameObject gameObject4 = GameObject.Find("/endMissionArrow");
+				if (gameObject4)
+				{
+					gameObject4.renderer.enabled = true;
+				}
+				if ((float)Screen.width / (float)Screen.height <= 1.5f)
+				{
+					MonoBehaviour.print("accomodate 4:3");
+					this._mountTrans.Translate(0.12f, 0f, 0f);
+					base.transform.localPosition = this._mountTrans.localPosition;
+				}
+				JazzTool.GetCarryCamObj().camera.enabled = true;
+				base.gameObject.layer = 9;
+				UnityEngine.Object.Destroy(GameObject.Find("/Text/missiontext"));
+				GameObject gameObject5 = GameObject.Find("/Text/returnText");
+				gameObject5.SendMessage("SetCollidable", SendMessageOptions.DontRequireReceiver);
+				gameObject5.renderer.enabled = true;
+				UnityEngine.Object.Destroy(base.collider);
+				this.SwitchMusic();
+			}
+			
+	LoadDisplayManager:
+		GenerateLoadItems:
+			Before
+			{
+				this._modeStr = "load";
+				string[] files = Directory.GetFiles(Application.streamingAssetsPath + "/SaveGameScreens/", "*.png", SearchOption.AllDirectories);
+				Hashtable[] array = new Hashtable[files.Length];
+				int num = 0;
+				for (int i = files.Length - 1; i > -1; i--)
+				{
+					string text = files[i];
+					string text2 = text.Substring(0, text.LastIndexOf("."));
+					string str = text2.Substring(text.LastIndexOf("/") + 1);
+					string text3 = text2.Substring(text.LastIndexOf("/") + 5);
+					text3 = text3.Replace("_", " ");
+					char[] array2 = text3.ToCharArray();
+					if (text3.IndexOf("-") > -1)
+					{
+						array2[text3.LastIndexOf("-")] = ':';
+						text3 = new string(array2);
+						array2[text3.LastIndexOf("-")] = ':';
+						text3 = new string(array2);
+					}
+					Hashtable[] array3 = array;
+					int num2 = num;
+					array3[num2] = new Hashtable
+					{
+						{
+							"title",
+							text3
+						},
+						{
+							"imgPath",
+							"SaveGameScreens/" + str
+						},
+						{
+							"idNum",
+							i
+						},
+						{
+							"isload",
+							true
+						},
+						{
+							"unlocked",
+							true
+						}
+					};
+					num++;
+				}
+				this.GenerateGrid(array);
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				this._modeStr = "load";
+				string[] files = Directory.GetFiles(Application.streamingAssetsPath + "/SaveGameScreens/", "*.png", SearchOption.AllDirectories);
+				Hashtable[] array = new Hashtable[files.Length];
+				int num = 0;
+				for (int i = files.Length - 1; i > -1; i--)
+				{
+					string text = files[i];
+					string text2 = text.Substring(0, text.LastIndexOf("."));
+					string str = text2.Substring(text.LastIndexOf("/") + 1);
+					string text3 = text2.Substring(text.LastIndexOf("/") + 5);
+					text3 = text3.Replace("_", " ");
+					char[] array2 = text3.ToCharArray();
+					if (text3.IndexOf("-") > -1)
+					{
+						array2[text3.LastIndexOf("-")] = ':';
+						text3 = new string(array2);
+						array2[text3.LastIndexOf("-")] = ':';
+						text3 = new string(array2);
+					}
+					Hashtable[] array3 = array;
+					int num2 = num;
+					array3[num2] = new Hashtable
+					{
+						{
+							"title",
+							text3
+						},
+						{
+							"imgPath",
+							"SaveGameScreens/" + str
+						},
+						{
+							"idNum",
+							i
+						},
+						{
+							"isload",
+							true
+						},
+						{
+							"unlocked",
+							true
+						}
+					};
+					num++;
+				}
+				this.GenerateGrid(array);
+				LoadRemover.SetLoading(false);
+			}
+			
+	LoadMenu:
+		LoadAuto:
+			Before
+			{
+				if (!PSSaveLoad.Exists("savedLevelStr"))
+				{
+					return;
+				}
+				LoadMenu._quickLoadingBln = true;
+				Application.LoadLevel(PSSaveLoad.LoadString("savedLevelStr"));
+				NecroTrack.SetLevelData();
+			}
+			
+			After
+			{
+				if (!PSSaveLoad.Exists("savedLevelStr"))
+				{
+					return;
+				}
+				LoadRemover.SetLoading(true);
+				LoadMenu._quickLoadingBln = true;
+				Application.LoadLevel(PSSaveLoad.LoadString("savedLevelStr"));
+				NecroTrack.SetLevelData();
+			}
+			
+		LoadFile:
+			Before
+			{
+				string text = "savedLevelStr";
+				if (fileStr.IndexOf(".txt") == -1)
+				{
+					fileStr += ".txt";
+				}
+				if (!ES2.Exists(fileStr + "?tag=" + text))
+				{
+					MonoBehaviour.print("file:" + fileStr + " does not exist");
+					return;
+				}
+				text = fileStr + "?tag=" + text;
+				string text2 = PSSaveLoad.LoadString(text);
+				if (text2 == "groceryStore")
+				{
+					ExtrasMenu._cameFromExtrasMenuBln = true;
+					MonoBehaviour.print("No save for grocery store");
+					LoadingDisplay.Show();
+					Application.LoadLevel(text2);
+					AudioListener.volume = 1f;
+					return;
+				}
+				LoadMenu._quickLoadingBln = true;
+				GameObject.Find("/Menu/Load").GetComponent<LoadMenu>()._loadingBln = true;
+				LoadingDisplay.Show();
+				LoadMenu._fileLoadingStr = fileStr;
+				Application.LoadLevel(text2);
+				MonoBehaviour.print("Loading file :" + text2 + " f:" + fileStr);
+				NecroTrack.SetLevelData();
+				MenuUtils.StopAllSounds();
+			}
+			
+			After
+			{
+				string text = "savedLevelStr";
+				if (fileStr.IndexOf(".txt") == -1)
+				{
+					fileStr += ".txt";
+				}
+				if (!ES2.Exists(fileStr + "?tag=" + text))
+				{
+					MonoBehaviour.print("file:" + fileStr + " does not exist");
+					return;
+				}
+				text = fileStr + "?tag=" + text;
+				LoadRemover.SetLoading(true);
+				string text2 = PSSaveLoad.LoadString(text);
+				if (text2 == "groceryStore")
+				{
+					ExtrasMenu._cameFromExtrasMenuBln = true;
+					MonoBehaviour.print("No save for grocery store");
+					LoadingDisplay.Show();
+					Application.LoadLevel(text2);
+					AudioListener.volume = 1f;
+					return;
+				}
+				LoadRemover.SetLoading(true);
+				LoadMenu._quickLoadingBln = true;
+				GameObject.Find("/Menu/Load").GetComponent<LoadMenu>()._loadingBln = true;
+				LoadingDisplay.Show();
+				LoadMenu._fileLoadingStr = fileStr;
+				Application.LoadLevel(text2);
+				MonoBehaviour.print("Loading file :" + text2 + " f:" + fileStr);
+				NecroTrack.SetLevelData();
+				MenuUtils.StopAllSounds();
+			}
+			
+		OnLevelWasLoaded:
+			Before
+			{
+				LoadMenu._levelHistoryArr.Add(levelNum);
+				if (LoadMenu._fileLoadingStr != string.Empty)
+				{
+					LoadMenu._lastTimeSaveLoad = Time.time;
+					AudioListener.volume = 1f;
+					string loadFileStr = LoadMenu._loadFileStr;
+					LoadMenu._loadFileStr = LoadMenu._fileLoadingStr;
+					NecroTool.BroadcastAll("Load");
+					LoadMenu._fileLoadingStr = string.Empty;
+				}
+				ItemManager.EnableCycle();
+			}
+			
+			After
+			{
+				LoadMenu._levelHistoryArr.Add(levelNum);
+				LoadRemover.Level = levelNum;
+				if (LoadMenu._fileLoadingStr != string.Empty)
+				{
+					LoadMenu._lastTimeSaveLoad = Time.time;
+					AudioListener.volume = 1f;
+					string loadFileStr = LoadMenu._loadFileStr;
+					LoadMenu._loadFileStr = LoadMenu._fileLoadingStr;
+					NecroTool.BroadcastAll("Load");
+					LoadMenu._fileLoadingStr = string.Empty;
+				}
+				ItemManager.EnableCycle();
+			}
+			
+		ToggleWQ:
+			Before
+			{
+				if (Application.loadedLevelName != "WeddingQuake")
+				{
+					this._loadingBln = true;
+					LoadingDisplay.Show();
+					Time.timeScale = 1f;
+					GameObject gameObject = GameObject.Find("/VectorCam");
+					if (gameObject != null)
+					{
+						UnityEngine.Object.Destroy(gameObject);
+					}
+					Application.LoadLevel("WeddingQuake");
+					AudioListener.volume = 1f;
+					return;
+				}
+				this.LoadLevelSelected(0);
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				if (Application.loadedLevelName != "WeddingQuake")
+				{
+					this._loadingBln = true;
+					LoadingDisplay.Show();
+					Time.timeScale = 1f;
+					GameObject gameObject = GameObject.Find("/VectorCam");
+					if (gameObject != null)
+					{
+						UnityEngine.Object.Destroy(gameObject);
+					}
+					Application.LoadLevel("WeddingQuake");
+					AudioListener.volume = 1f;
+					return;
+				}
+				this.LoadLevelSelected(0);
+			}
+			
+	MainMenu:
+		IntroCheck:
+			Before
+			{
+				if (!UnitySplashScreen._seenIntroVidBln && GameSettings._gameConsoleModeBln)
+				{
+					Time.timeScale = 0f;
+					MainMenu._firstLoadBln = false;
+					this._introMenuBln = true;
+					this._disableCloseBln = true;
+					this.UseBeginMenuArr();
+					this._lockdownBln = true;
+					GameObject gameObject = GameObject.Find("/Main Camera/videoPlane");
+					if (gameObject != null)
+					{
+						gameObject.SendMessage("StartVideo", SendMessageOptions.DontRequireReceiver);
+						OnScreenLog.Add("STart Video");
+						return;
+					}
+				}
+				else if (MainMenu._firstLoadBln && Application.loadedLevelName == "intro")
+				{
+					MainMenu._firstLoadBln = false;
+					if (GameSettings._gameConsoleModeBln)
+					{
+						Time.timeScale = 0f;
+					}
+					base.transform.parent.Find("3DScene/menu3DBackPlane/menuLinesRepeat").renderer.enabled = true;
+					this.PlayMenuMusic();
+					this._introMenuBln = true;
+					this._disableCloseBln = true;
+					this.UseBeginMenuArr();
+					this._lockdownBln = true;
+					this.ToggleMenu();
+				}
+			}
+			
+			After
+			{
+				if (!UnitySplashScreen._seenIntroVidBln && GameSettings._gameConsoleModeBln)
+				{
+					Time.timeScale = 0f;
+					MainMenu._firstLoadBln = false;
+					this._introMenuBln = true;
+					this._disableCloseBln = true;
+					this.UseBeginMenuArr();
+					this._lockdownBln = true;
+					GameObject gameObject = GameObject.Find("/Main Camera/videoPlane");
+					if (gameObject != null)
+					{
+						gameObject.SendMessage("StartVideo", SendMessageOptions.DontRequireReceiver);
+						OnScreenLog.Add("STart Video");
+						return;
+					}
+				}
+				else if (MainMenu._firstLoadBln && Application.loadedLevelName == "intro")
+				{
+					MainMenu._firstLoadBln = false;
+					if (GameSettings._gameConsoleModeBln)
+					{
+						Time.timeScale = 0f;
+					}
+					base.transform.parent.Find("3DScene/menu3DBackPlane/menuLinesRepeat").renderer.enabled = true;
+					this.PlayMenuMusic();
+					this._introMenuBln = true;
+					this._disableCloseBln = true;
+					this.UseBeginMenuArr();
+					this._lockdownBln = true;
+					this.ToggleMenu();
+					LoadRemover.SetLoading(false);
+				}
+			}
+			
+		QuickSave:
+			Before
+			{
+				if (Application.loadedLevelName == "intro")
+				{
+					return;
+				}
+				this._lockdownBln = true;
+				DateTime.Now.ToString(this._dateFormatStr);
+				MainMenu._isSavingBln = true;
+				this.Set3DCam(false);
+				Application.CaptureScreenshot(Application.streamingAssetsPath + "/SaveGameScreens/cap_quickSave.png");
+				this.SaveGame();
+				base.transform.parent.Find("3DScene/loadDisplayManager").SendMessage("ClearQuickSaveFromCache", SendMessageOptions.DontRequireReceiver);
+				this.CallDelayedFunc("DoneQuickSaving", 0.05f);
+			}
+			
+			After
+			{
+				if (Application.loadedLevelName == "intro")
+				{
+					return;
+				}
+				LoadRemover.SetLoading(true);
+				this._lockdownBln = true;
+				DateTime.Now.ToString(this._dateFormatStr);
+				MainMenu._isSavingBln = true;
+				this.Set3DCam(false);
+				Application.CaptureScreenshot(Application.streamingAssetsPath + "/SaveGameScreens/cap_quickSave.png");
+				this.SaveGame();
+				base.transform.parent.Find("3DScene/loadDisplayManager").SendMessage("ClearQuickSaveFromCache", SendMessageOptions.DontRequireReceiver);
+				this.CallDelayedFunc("DoneQuickSaving", 0.05f);
+				LoadRemover.SetLoading(false);
+			}
+			
+		SaveGameSelected:
+			Before
+			{
+				if (Application.loadedLevelName == "intro" || Application.loadedLevelName == "beatUpCar" || Application.loadedLevelName == "Subway_Station_D_01")
+				{
+					return;
+				}
+				this._lockdownBln = true;
+				base.transform.parent.BroadcastMessage("SaveGameStart", SendMessageOptions.DontRequireReceiver);
+				string text = DateTime.Now.ToString(this._dateFormatStr);
+				MainMenu._isSavingBln = true;
+				this.Set3DCam(false);
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					string pathStr = Application.streamingAssetsPath + "/SaveGameScreens/cap_" + text + ".png";
+					this.GrabScreen(pathStr);
+				}
+				LoadMenu._loadFileStr = "saveGame_" + text + ".txt";
+				this.SaveGame();
+				LoadMenu._loadFileStr = LoadMenu._defaultLoadFileStr;
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					this.CallDelayedFunc("DoneSaving", 0.05f);
+				}
+				else
+				{
+					this._loadMenuObj.GetComponent<PSSaveLoad>().MenuSave(true);
+				}
+			}
+			
+			After
+			{
+				if (Application.loadedLevelName == "intro" || Application.loadedLevelName == "beatUpCar" || Application.loadedLevelName == "Subway_Station_D_01")
+				{
+					return;
+				}
+				LoadRemover.SetLoading(true);
+				this._lockdownBln = true;
+				base.transform.parent.BroadcastMessage("SaveGameStart", SendMessageOptions.DontRequireReceiver);
+				string text = DateTime.Now.ToString(this._dateFormatStr);
+				MainMenu._isSavingBln = true;
+				this.Set3DCam(false);
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					string pathStr = Application.streamingAssetsPath + "/SaveGameScreens/cap_" + text + ".png";
+					this.GrabScreen(pathStr);
+				}
+				LoadMenu._loadFileStr = "saveGame_" + text + ".txt";
+				this.SaveGame();
+				LoadMenu._loadFileStr = LoadMenu._defaultLoadFileStr;
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					this.CallDelayedFunc("DoneSaving", 0.05f);
+				}
+				else
+				{
+					this._loadMenuObj.GetComponent<PSSaveLoad>().MenuSave(true);
+				}
+				LoadRemover.SetLoading(false);
+			}
+			
+		Start:
+			Before
+			{
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					this._canQuitBln = true;
+					string[] array = (string[])this._titleBeginArr.Clone();
+					this._titleBeginArr = new string[array.Length + 1];
+					for (int i = 0; i < array.Length; i++)
+					{
+						this._titleBeginArr[i] = array[i];
+					}
+					this._titleBeginArr[this._titleBeginArr.Length - 1] = "Quit Game";
+				}
+				this._menuBgLinesTrans = base.transform.parent.Find("3DScene/menu3DBackPlane/menuLinesRepeat");
+				this._logoTrans = base.transform.parent.Find("Logo");
+				this._bgTex = (Texture)Resources.Load("Textures/blackTex");
+				this._bossTex = (Texture)Resources.Load("Textures/bossTex");
+				this._bossBgTex = (Texture)Resources.Load("Textures/bossBgTex");
+				MainMenu._mainMenuObj = base.gameObject;
+				MainMenu._loadMsgStyle = new GUIStyle(this._style);
+				MainMenu._loadMsgStyle.normal.textColor = Color.white;
+				MainMenu._loadMsgStyle.fontSize = 40;
+				MainMenu._highlightedStyle = new GUIStyle(this._style);
+				MainMenu._highlightedStyle.normal.textColor = Color.white;
+				MainMenu._generalScreenStyle = new GUIStyle(MainMenu._highlightedStyle);
+				MainMenu._generalScreenStyle.normal.textColor = Color.white;
+				MainMenu._generalScreenStyle.fontSize = 50;
+				this._tintStyle = new GUIStyle(MainMenu._highlightedStyle);
+				this._tintStyle.normal.textColor = this._tintCol;
+				this._style.richText = true;
+				base.gameObject.AddComponent<SecretCodeManagerGamepad>();
+				this.SetupProps();
+				Time.timeScale = 1f;
+				this._titleArr = this._titleFullArr;
+				this.IntroCheck();
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(false);
+				if (!GameSettings._gameConsoleModeBln)
+				{
+					this._canQuitBln = true;
+					string[] array = (string[])this._titleBeginArr.Clone();
+					this._titleBeginArr = new string[array.Length + 1];
+					for (int i = 0; i < array.Length; i++)
+					{
+						this._titleBeginArr[i] = array[i];
+					}
+					this._titleBeginArr[this._titleBeginArr.Length - 1] = "Quit Game";
+				}
+				this._menuBgLinesTrans = base.transform.parent.Find("3DScene/menu3DBackPlane/menuLinesRepeat");
+				this._logoTrans = base.transform.parent.Find("Logo");
+				this._bgTex = (Texture)Resources.Load("Textures/blackTex");
+				this._bossTex = (Texture)Resources.Load("Textures/bossTex");
+				this._bossBgTex = (Texture)Resources.Load("Textures/bossBgTex");
+				MainMenu._mainMenuObj = base.gameObject;
+				MainMenu._loadMsgStyle = new GUIStyle(this._style);
+				MainMenu._loadMsgStyle.normal.textColor = Color.white;
+				MainMenu._loadMsgStyle.fontSize = 40;
+				MainMenu._highlightedStyle = new GUIStyle(this._style);
+				MainMenu._highlightedStyle.normal.textColor = Color.white;
+				MainMenu._generalScreenStyle = new GUIStyle(MainMenu._highlightedStyle);
+				MainMenu._generalScreenStyle.normal.textColor = Color.white;
+				MainMenu._generalScreenStyle.fontSize = 50;
+				this._tintStyle = new GUIStyle(MainMenu._highlightedStyle);
+				this._tintStyle.normal.textColor = this._tintCol;
+				this._style.richText = true;
+				base.gameObject.AddComponent<SecretCodeManagerGamepad>();
+				this.SetupProps();
+				Time.timeScale = 1f;
+				this._titleArr = this._titleFullArr;
+				this.IntroCheck();
+			}
+			
+		StartNewGame:
+			Before
+			{
+				this._newGamePressedBln = true;
+				JokeUtils.ClearJokeCount();
+				this.DeleteSpecificSaveVariables();
+				Application.LoadLevel(0);
+				this._endGameBln = false;
+				AudioListener.volume = 1f;
+				Time.timeScale = 1f;
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				this._newGamePressedBln = true;
+				JokeUtils.ClearJokeCount();
+				this.DeleteSpecificSaveVariables();
+				Application.LoadLevel(0);
+				this._endGameBln = false;
+				AudioListener.volume = 1f;
+				Time.timeScale = 1f;
+			}
+			
+	Tiki:
+		Relocate:
+			Before
+			{
+				ItemManager.EnableCycle();
+				GameObject.Find("/Menu/Main").GetComponent<MainMenu>().DisableSaveOption();
+				Application.LoadLevel("groceryStoreMain");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				ItemManager.EnableCycle();
+				GameObject.Find("/Menu/Main").GetComponent<MainMenu>().DisableSaveOption();
+				Application.LoadLevel("groceryStoreMain");
+			}
+			
+	Trigger_Level:
+		LoadLevel:
+			Before
+			{
+				if (ConsoleModes._demoModeBln && Application.loadedLevelName.IndexOf("Sushi") > -1)
+				{
+					MonoBehaviour.print("Demo Mode Complete");
+					this.ShowDemoScreen();
+					GameObject gameObject = GameObject.Find("/Player");
+					if (gameObject != null)
+					{
+						gameObject.BroadcastMessage("SetControllable", false, SendMessageOptions.DontRequireReceiver);
+						return;
+					}
+				}
+				else
+				{
+					Application.LoadLevel(this._levelStr);
+				}
+			}
+			
+			After
+			{
+				if (ConsoleModes._demoModeBln && Application.loadedLevelName.IndexOf("Sushi") > -1)
+				{
+					MonoBehaviour.print("Demo Mode Complete");
+					this.ShowDemoScreen();
+					GameObject gameObject = GameObject.Find("/Player");
+					if (gameObject != null)
+					{
+						gameObject.BroadcastMessage("SetControllable", false, SendMessageOptions.DontRequireReceiver);
+						return;
+					}
+				}
+				else
+				{
+					LoadRemover.SetLoading(true);
+					Application.LoadLevel(this._levelStr);
+				}
+			}
+			
+	WaveRaceController:
+		EndRace:
+			Before
+			{
+				this._gameRunningBln = false;
+				NecroSoundManager.StopSnd("waveRaceMusic");
+				this._playerBoatTrans.SendMessage("EndRace", SendMessageOptions.DontRequireReceiver);
+				if (this._editorBoatTrans != null)
+				{
+					this._editorBoatTrans.SendMessage("EndRace", SendMessageOptions.DontRequireReceiver);
+				}
+				base.Invoke("ModeEnded", 6f);
+			}
+			
+			After
+			{
+				LoadRemover.SplitState = (SplitterEvent)256;
+				this._gameRunningBln = false;
+				NecroSoundManager.StopSnd("waveRaceMusic");
+				this._playerBoatTrans.SendMessage("EndRace", SendMessageOptions.DontRequireReceiver);
+				if (this._editorBoatTrans != null)
+				{
+					this._editorBoatTrans.SendMessage("EndRace", SendMessageOptions.DontRequireReceiver);
+				}
+				base.Invoke("ModeEnded", 6f);
+			}
+			
+	WeddingQuakeLauncher:
+		Activate:
+			Before
+			{
+				if (!this._usedBln)
+				{
+					this._usedBln = true;
+					if (Application.loadedLevelName != "WeddingQuake")
+					{
+						ConsoleModes.SaveGame("WeddingLaunch");
+						Application.LoadLevel("WeddingQuake");
+						return;
+					}
+					MonoBehaviour.print("Return to previous level");
+					ConsoleModes.LoadGame("WeddingLaunch");
+				}
+			}
+			
+			After
+			{
+				if (!this._usedBln)
+				{
+					this._usedBln = true;
+					LoadRemover.SetLoading(true);
+					if (Application.loadedLevelName != "WeddingQuake")
+					{
+						ConsoleModes.SaveGame("WeddingLaunch");
+						Application.LoadLevel("WeddingQuake");
+						return;
+					}
+					MonoBehaviour.print("Return to previous level");
+					ConsoleModes.LoadGame("WeddingLaunch");
+				}
+			}
+			
+	WQMapControl:
+		DoLoad:
+			Before
+			{
+				string name = this._levelIdArr[this._selectedIndexNum];
+				ExtrasMenu._cameFromExtrasMenuBln = base.transform.parent.parent.Find("GUI/splash").GetComponent<WQSplashScreen>()._cameFromExtrasMenuBln;
+				Application.LoadLevel(name);
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				string name = this._levelIdArr[this._selectedIndexNum];
+				ExtrasMenu._cameFromExtrasMenuBln = base.transform.parent.parent.Find("GUI/splash").GetComponent<WQSplashScreen>()._cameFromExtrasMenuBln;
+				Application.LoadLevel(name);
+			}
+			
+	WQSplashScreen:
+		NewGameSelected:
+			Before
+			{
+				ExtrasMenu._cameFromExtrasMenuBln = base.transform.parent.Find("splash").GetComponent<WQSplashScreen>()._cameFromExtrasMenuBln;
+				Application.LoadLevel("WeddingQuake");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				ExtrasMenu._cameFromExtrasMenuBln = base.transform.parent.Find("splash").GetComponent<WQSplashScreen>()._cameFromExtrasMenuBln;
+				Application.LoadLevel("WeddingQuake");
+			}
+			
+	WWCoffeeControl:
+		LoadNextLevel:
+			Before
+			{
+				ItemManager.EnableCycle();
+				Application.LoadLevel("subway_Part_Quatre");
+			}
+			
+			After
+			{
+				LoadRemover.SetLoading(true);
+				ItemManager.EnableCycle();
+				Application.LoadLevel("subway_Part_Quatre");
+			}
