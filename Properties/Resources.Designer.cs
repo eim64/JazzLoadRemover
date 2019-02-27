@@ -71,7 +71,7 @@ namespace JazzLoadRemover.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 443941d070149498da5153a089019ab3.
+        ///   Looks up a localized string similar to 7c7b4c2cf2896ce43504d0bc5b8310e8.
         /// </summary>
         internal static string AssemblyMD5 {
             get {

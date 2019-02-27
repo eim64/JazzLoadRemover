@@ -184,7 +184,7 @@ Edited Methods:
 			
 			After
 			{
-				LoadRemover.SplitState = (SplitterEvent)1024;
+				LoadRemover.SplitState = SplitterEvent.Pill_Swallow;
 				base.audio.Play();
 				this.StartCountdown();
 			}
@@ -259,7 +259,7 @@ Edited Methods:
 					}
 					else
 					{
-						LoadRemover.SplitState = (SplitterEvent)128;
+						LoadRemover.SplitState = SplitterEvent.Last_Golf_Hole;
 						GameObject item = JazzTool.GetItem("golfClubItem");
 						if (item != null)
 						{
@@ -369,7 +369,7 @@ Edited Methods:
 			
 			After
 			{
-				LoadRemover.SplitState = SplitterEvent.Gravy_Race_Finish;
+				LoadRemover.SplitState = SplitterEvent.Kidney_Pickup;
 				MonoBehaviour.print("PickedUp" + Time.time);
 				this._introDelayBln = true;
 				base.Invoke("IntroDelayComplete", 0.2f);
@@ -1036,7 +1036,7 @@ Edited Methods:
 			
 			After
 			{
-				LoadRemover.SplitState = (SplitterEvent)256;
+				LoadRemover.SplitState = SplitterEvent.Gravy_Race_Finish;
 				this._gameRunningBln = false;
 				NecroSoundManager.StopSnd("waveRaceMusic");
 				this._playerBoatTrans.SendMessage("EndRace", SendMessageOptions.DontRequireReceiver);

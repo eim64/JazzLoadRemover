@@ -84,6 +84,7 @@ namespace JazzLoadRemover
             if (process != null)
                 process.Kill();
              
+            
             System.Windows.Forms.MessageBox.Show("Successfully installed the jazzpunk assembly.", "JazzSplitter");
         }
 
