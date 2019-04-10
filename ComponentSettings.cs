@@ -54,7 +54,7 @@ namespace LiveSplit.UI.Components
             if (From < 0)
                 return CurrentLevel == To;
 
-            return CurrentLevel == To && PreviousLevel == From;
+            return CurrentLevel == To && PreviousLevel == From && Enabled;
         }
     }
 
