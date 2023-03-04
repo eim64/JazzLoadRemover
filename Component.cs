@@ -95,7 +95,13 @@ namespace LiveSplit.UI.Components
             {
                 CPS = SE;
                 if (CPS != 0 && settings.CanSplit(SE))
-                    _timer.Split();
+                {
+                    if (state.CurrentPhase == TimerPhase.NotRunning)
+                        _timer.Start();
+                    else
+                        _timer.Split();
+                }
+
 
                 Game.WriteBytes(CustomSplitPtr, new byte[4]);
             }
@@ -105,6 +111,9 @@ namespace LiveSplit.UI.Components
             {
                 if (!settings.LevelTransitions.TrueForAll(x => !x.Valid(CurrentLevel, PreviousLevel)))
                     _timer.Split();
+
+                if (CurrentLevel == 1) // Darlington Station
+                    _timer.Reset();
 
                 PreviousLevel = CurrentLevel;
             }

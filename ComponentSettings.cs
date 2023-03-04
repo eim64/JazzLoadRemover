@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -17,7 +17,8 @@ namespace LiveSplit.UI.Components
         Kidney_Pickup = 1,
         Last_Golf_Hole = 2,
         Gravy_Race_Finish = 4,
-        Pill_Swallow = 8
+        Pill_Swallow = 8,
+        Auto_Start = 16
     }
 
     public class LevelTransition
@@ -61,7 +62,7 @@ namespace LiveSplit.UI.Components
     public partial class ComponentSettings : UserControl
     {
         public bool ASEnabled => AutoSplitterCB.Checked;
-        public SplitterEvent SplitOptions = SplitterEvent.Pill_Swallow;
+        public SplitterEvent SplitOptions = SplitterEvent.Pill_Swallow | SplitterEvent.Auto_Start;
 
         public List<LevelTransition> LevelTransitions = new List<LevelTransition>()
         {
@@ -96,8 +97,8 @@ namespace LiveSplit.UI.Components
             foreach (var trans in LevelTransitions)
                 trans.Disable();
 
-            foreach(var entry in SettingsHelper.ParseString(node["LevelTransitionsSplits"], "").Split('|'))
-                LevelTransitions.Find(x=>x.Name == entry).Enable();
+            foreach (var entry in SettingsHelper.ParseString(node["LevelTransitionsSplits"], "").Split('|'))
+                LevelTransitions.Find(x => x.Name == entry).Enable();
         }
 
         public XmlNode GetSettings(XmlDocument Document)

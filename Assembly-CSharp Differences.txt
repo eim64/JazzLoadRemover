@@ -1,9 +1,10 @@
 Added Types:
 	public enum SplitterEvent{
 		Kidney_Pickup = 1,
-		Last_Golf_Hole,
+		Last_Golf_Hole = 2,
 		Gravy_Race_Finish = 4,
-		Pill_Swallow = 8
+		Pill_Swallow = 8,
+		Auto_Start = 16
 	}
 	
 	public static class LoadRemover
@@ -43,9 +44,113 @@ Added Types:
 		}
 
 		public static IntPtr ptr = Marshal.AllocHGlobal(9);
+		public static bool has_moved;
 	}
 	
 Edited Methods:
+	AI_Director:
+		Start:
+			Before
+			{
+				this.SetRefs();
+				if (this._fromLoadBln && this._lieInDeskBln)
+				{
+					return;
+				}
+				this.ReturnToComputer();
+			}
+
+			After
+			{
+				LoadRemover.has_moved = false;
+				this.SetRefs();
+				if (this._fromLoadBln && this._lieInDeskBln)
+				{
+					return;
+				}
+				this.ReturnToComputer();
+			}
+		Update:
+			Before
+			{
+				if (this._walkingToCellarBln)
+				{
+					return;
+				}
+				if (Vector3.Distance(this._playerTrans.position, base.transform.position) < this._distThreshNum && !this._inSequenceBln && !ConsoleModes._directorPuppetModeBln)
+				{
+					this.LookAtPlayer();
+				}
+				if (ConsoleModes._directorPuppetModeBln)
+				{
+					this.UpdateDirectorPuppet();
+				}
+				if (this._showLineBln)
+				{
+					if (!this._lineShownBln)
+					{
+						this._lineShownBln = true;
+						this.DrawSightLine();
+						NecroSoundManager.PlaySnd("sfx/cartoon/directorLook");
+					}
+					Vector3[] linePoints = new Vector3[]
+					{
+						this._eyesObj.transform.position,
+						this._sightObj.transform.position
+					};
+					if (this._sightLine != null)
+					{
+						Vector.DestroyLine(ref this._sightLine);
+					}
+					this._sightLine = new VectorLine("SightLine", linePoints, this._lineMat, 10f);
+					Vector.DrawLine(this._sightLine);
+					Vector.SetTextureScale(this._sightLine, 5f, -Time.time * 2f % 1f);
+				}
+			}
+
+			After
+			{
+				CharacterController controller = this._playerTrans.GetComponent<CharacterController>();
+				if (!LoadRemover.has_moved && controller.velocity.magnitude > 1E-05f)
+				{
+					LoadRemover.SplitState = SplitterEvent.Auto_Start;
+					LoadRemover.has_moved = true;
+				}
+				
+				if (this._walkingToCellarBln)
+				{
+					return;
+				}
+				if (Vector3.Distance(this._playerTrans.position, base.transform.position) < this._distThreshNum && !this._inSequenceBln && !ConsoleModes._directorPuppetModeBln)
+				{
+					this.LookAtPlayer();
+				}
+				if (ConsoleModes._directorPuppetModeBln)
+				{
+					this.UpdateDirectorPuppet();
+				}
+				if (this._showLineBln)
+				{
+					if (!this._lineShownBln)
+					{
+						this._lineShownBln = true;
+						this.DrawSightLine();
+						NecroSoundManager.PlaySnd("sfx/cartoon/directorLook");
+					}
+					Vector3[] linePoints = new Vector3[]
+					{
+						this._eyesObj.transform.position,
+						this._sightObj.transform.position
+					};
+					if (this._sightLine != null)
+					{
+						Vector.DestroyLine(ref this._sightLine);
+					}
+					this._sightLine = new VectorLine("SightLine", linePoints, this._lineMat, 10f);
+					Vector.DrawLine(this._sightLine);
+					Vector.SetTextureScale(this._sightLine, 5f, -Time.time * 2f % 1f);
+				}
+			}
 	CakeLaptop:
 		Launch:
 			Before
