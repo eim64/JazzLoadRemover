@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -69,7 +69,7 @@ namespace LiveSplit.UI.Components
             new LevelTransition("Soviet Consulate", 2, 3),
             new LevelTransition("Ikayaki Alley", 5,6),
             new LevelTransition("The Temple",6,7),
-            new LevelTransition("Kai Tak Day", 8,10),
+            new LevelTransition("Kai Tak Day", 8,27),
             new LevelTransition("Kat Tak Night", 10, 9),
             new LevelTransition("The Wetworks", 9,12),
             new LevelTransition("Darlington Station 2",12, 13),
